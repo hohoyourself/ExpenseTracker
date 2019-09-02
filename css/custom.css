@@ -1,0 +1,311 @@
+select{
+    background-color: transparent !important;
+}
+#nav{
+    height:4rem;
+    font-size: 1.5rem;
+    background-color: #f7f7f7;
+    border-top: 1pt solid #cccccc;
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    z-index:100;
+}
+#addViewAmount{
+    color: #4D4D4D;
+    font-size: 4rem;
+    text-align: center;
+    overflow: visible;
+}
+#addViewInputGroup{
+    width: 19.5rem;
+}
+#addViewCategory{
+    width: 19.5rem;
+}
+#navMockup{
+    min-height:4rem;
+    opacity: 0;
+}
+#doughnutContainer{
+    width: 19.5rem;
+    height:19.5rem;
+    position:relative;
+}
+#doughnutCenter{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+#doughnut{
+    z-index: 50;
+}
+#mainView{
+    height: 100vh;
+}
+#barlineContainer{
+    width: 19.5rem;
+    height: 19.5rem;
+}
+#monthControl{
+    width:19.5rem;
+}
+
+/* colors start */
+
+.bg-lightblue{
+    background-color: #C1E4FF !important;
+}
+.text-lightblue{
+    color: #C1E4FF !important;
+}
+.outline-lightblue{
+    box-shadow: 0 0 0 1pt #C1E4FF;
+}
+
+.bg-primaryblue{
+    background-color: #30A5FF !important;
+}
+.text-primaryblue{
+    color: #30A5FF !important;
+}
+.outline-primaryblue{
+    box-shadow: 0 0 0 1pt #30A5FF;
+}
+
+.bg-gray-1{
+    background-color: #F5F5F5 !important;
+}
+.text-gray-1{
+    color: #F5F5F5 !important;
+}
+.outline-gray-1{
+    box-shadow: 0 0 0 1pt #F5F5F5;
+}
+
+.bg-gray-2{
+    background-color: #A4A4A4 !important;
+}
+.text-gray-2{
+    color: #A4A4A4 !important;
+}
+
+.bg-red-1{
+    background-color: #ff695f !important;
+}
+.text-red-1{
+    color: #ff695f !important;
+}
+
+.bg-orange-1{
+    background-color: #FFAC0F !important;
+}
+.text-orange-1{
+    color: #FFAC0F !important;
+}
+/* colors end */
+
+/* font start */
+.custom-open-san{
+    font-family:   'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.custom-source-san{
+    font-family:   'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.custom-noto-san{
+    font-family:  'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.custom-varela-round{
+    font-family:  'Varela Round', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+/* font end */
+
+/* bootstrap overwrite start */
+.form-control:focus {
+    outline: 0;
+    box-shadow: none;
+}
+/* bootstrap overwrite end */
+
+/* keyframe start */
+@keyframes FadeInFromTop{
+    from {
+        opacity : 0;
+        transform: translateY(-1rem);
+    }
+    to {
+        opacity : 1;
+        transform: translateY(0rem);
+    }
+}
+@keyframes FadeOutToBottom{
+    from {
+        opacity : 1;
+        transform: translateY(0rem);
+    }
+    to {
+        opacity : 0;
+        transform: translateY(1rem);
+    }
+}
+@keyframes FadeIn{
+    from {
+        opacity : 0;
+    }
+    to {
+        opacity : 1;
+    }
+}
+@keyframes FadeOut{
+    from {
+        opacity : 1;
+    }
+    to {
+        opacity : 0;
+    }
+}
+/* keyframe end */
+
+/* animation start */
+.custom-fadeIn{
+    animation: FadeInFromTop 0.25s;
+    animation-timing-function: ease-in;
+}
+.custom-fadeOut{
+    animation: FadeOutToBottom 0.25s;
+    animation-timing-function: ease-out;
+}
+.custom-fadeIn-simple{
+    animation: FadeIn 0.25s;
+    animation-timing-function: ease-in;
+}
+.custom-fadeOut-simple{
+    animation: FadeOut 0.25s;
+    animation-timing-function: ease-out;
+}
+/* animation end */
+
+/* font size start */
+.fs-08rem{
+    font-size: 0.8rem !important;
+}
+.fs-12rem{
+    font-size: 1.2rem !important;
+}
+.fs-15rem{
+    font-size: 1.5rem !important;
+}
+.fs-2rem{
+    font-size: 2rem !important;
+}
+.fs-3rem{
+    font-size: 3rem !important;
+}
+.fs-4rem{
+    font-size: 4rem !important;
+}
+/* font size end */
+
+.navButton{
+    transition: color 0.5s, background-color 0.5s;
+    cursor: pointer;
+}
+.navTitle{
+    font-size:0.8rem;
+}
+.round-2rem{
+    border-radius: 2rem;
+}
+.round-125rem{
+    border-radius: 1.25rem;
+}
+.action-item{
+    cursor: pointer;
+}
+.border-lightgray{
+    border:  1pt solid #CCCCCC;
+}
+.catgory-img{
+    width:5rem;
+    height:5rem;
+    transform: scale(0.99) /* pervent edge leaking */
+}
+.catgory-img-overlay{
+    width:5rem;
+    height:5rem;
+    position: absolute;
+    transition: opacity 0.5s;
+}
+.catgory-img-overlay:hover{
+    opacity: 0.4;
+}
+.op-0{
+    opacity: 0 !important;
+}
+.h-0{
+    height:0 !important;
+}
+.overflow-clip{
+    overflow: hidden;
+}
+.custom-modal-backdrop{
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+.custom-modal-container{
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    width:100vw;
+    height:100vh;
+    position: fixed;
+    display: flex;
+    left:0;
+    top:0;
+    z-index: 1050;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.custom-modal{
+    max-width: 19.5rem;
+    display: flex;
+    position:relative;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+}
+.infoPill{
+    height: 4.5rem;
+}
+.cat-detail{
+    height: 4.5rem;
+}
+.cat-detail-container{
+    transition: height 0.5s;
+}
+.entry-border-top{
+    border-top: 1pt solid #cccccc;
+    border-left: 1pt solid #cccccc;
+    border-right: 1pt solid #cccccc;
+    border-top-left-radius: 1.25rem;
+    border-top-right-radius: 1.25rem;
+}
+.entry-border-mid{
+    border-bottom: 1pt solid #cccccc;
+    border-left: 1pt solid #cccccc;
+    border-right: 1pt solid #cccccc;
+}
+.entry-border-btm{
+    border-bottom: 1pt solid #cccccc;
+    border-left: 1pt solid #cccccc;
+    border-right: 1pt solid #cccccc;
+    border-bottom-left-radius: 1.25rem;
+    border-bottom-right-radius: 1.25rem;
+}
