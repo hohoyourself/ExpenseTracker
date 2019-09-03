@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import $ from 'jquery';
 import Chart from 'chart.js'
-import {Nav, Category, Modal, InputGroup, Doughnut, InfoPill, BarLine} from './conponents.js'
+import {Nav, Category, Modal, InputGroup, Doughnut, InfoPill, BarLine, EntryPill} from './conponents.js'
 import {formatToday, currencyFormat} from './function.js'
 globalVar;
 
@@ -23,7 +23,8 @@ export class Page extends React.Component{
             selectedMonth: "current",
             modalPayload:{},
             barChartEndMonth:"current",
-            barChartFilter:[]
+            barChartFilter:[],
+            responsiveState:1
         }
         this.switchView = this.switchView.bind(this);
         this.switchViewCB = this.switchViewCB.bind(this);
@@ -46,6 +47,20 @@ export class Page extends React.Component{
         this.deleteEntry = this.deleteEntry.bind(this);
         this.updateEntry = this.updateEntry.bind(this);
         this.setModalPayload = this.setModalPayload.bind(this);
+        this.responsiveUpdate = this.responsiveUpdate.bind(this);
+    }
+    componentDidMount(){
+        window.addEventListener('resize',this.responsiveUpdate);
+    }
+    componentWillMount(){
+        let remSize = window.getComputedStyle(document.getElementById('fontRef')).fontSize;
+        remSize = parseInt(remSize.slice(0,-2));
+        let windowSizeRem = $(window).width() / remSize;
+        if (windowSizeRem < 46) this.setState({responsiveState:1});
+        else{
+            this.setState({responsiveState:2});
+            globalVar.barline.config.options.aspectRatio = 2;
+        }
     }
     switchView(newView, newMonth = null){
         if (this.state.currentView == newView) return;
@@ -65,8 +80,11 @@ export class Page extends React.Component{
     switchViewCB(){
         $('#mainView').addClass("custom-fadeIn-simple").removeClass("custom-fadeOut-simple");
         if (globalVar.newMonth) this.setState({selectedMonth:globalVar.newMonth})
+        else this.setState({selectedMonth:'current'})
         this.setState({
             barChartEndMonth:"current",
+            barChartFilter:[],
+            recentEntry:[],
             selectedCat:"none",
             selectedDate:"Today",
             monthDetail:[],
@@ -96,6 +114,7 @@ export class Page extends React.Component{
         if (this.state.selectedMonth != monthClean){
             this.setState({selectedMonth:newMonth});
             this.getMonthDetail(newMonth);
+            this.getRecentEntry(newMonth);
         }
     }
     switchBarChartMonth(newMonth){
@@ -108,6 +127,41 @@ export class Page extends React.Component{
     }
     switchBarChartFilter(newFilter){
         this.setState({barChartFilter:newFilter});
+    }
+    responsiveUpdate(){
+        let remSize = window.getComputedStyle(document.getElementById('fontRef')).fontSize;
+        remSize = parseInt(remSize.slice(0,-2));
+        let windowSizeRem = $(window).width() / remSize;
+        if (windowSizeRem < 46){
+            if (this.state.responsiveState == 2){
+                if (globalVar.doughnut.chart != '') globalVar.doughnut.chart.destroy();
+                globalVar.doughnut.chart = '';
+                if (globalVar.barline.chart != '') globalVar.barline.chart.destroy();
+                globalVar.barline.chart = '';
+
+                globalVar.doughnut.config.data = {datasets:[],labels:[]};
+                globalVar.barline.config.data = {datasets:[],labels:[]};
+
+                globalVar.barline.config.options.aspectRatio = 1;
+            }
+            this.setState({responsiveState:1});
+        }
+        else{
+            if (this.state.responsiveState == 1){
+                if (this.state.currentView == 'month'){
+                    if (globalVar.doughnut.chart != '') globalVar.doughnut.chart.destroy();
+                    globalVar.doughnut.chart = '';
+                }
+                if (globalVar.barline.chart != '') globalVar.barline.chart.destroy();
+                globalVar.barline.chart = '';
+
+                globalVar.doughnut.config.data = {datasets:[],labels:[]};
+                globalVar.barline.config.data = {datasets:[],labels:[]};
+
+                globalVar.barline.config.options.aspectRatio = 2;
+            }
+            this.setState({responsiveState:2});
+        }
     }
     showMainModal(){
         let modal = document.getElementById('mainModal');
@@ -130,7 +184,6 @@ export class Page extends React.Component{
         modal.removeEventListener("animationend", this.hideMainModalCB);
         $('#mainModal').removeClass("custom-fadeOut").addClass("d-none");
         $('#modalBackdrop').removeClass("custom-fadeOut-simple").addClass("d-none");
-        this.setState({modalData:''});
     }
     async getHistory(){
         let date = formatToday();
@@ -187,6 +240,10 @@ export class Page extends React.Component{
 
             $('#addComment').val("");
             $('#addAmount').val("");
+
+            let date = formatToday();
+            month = (this.state.selectedMonth == 'current'?(date.split('-')[0]+date.split('-')[1]):this.state.selectedMonth);
+            this.getMonthDetail(month);
         });
     }
     async updateEntry(payload){
@@ -203,14 +260,14 @@ export class Page extends React.Component{
     }
     getView(){
         if (this.state.currentView == 'add'){
-            return (<AddView showMainModal = {this.showMainModal} switchModal = {this.switchModal} selectedDate = {this.state.selectedDate} addEntry = {this.addEntry} disableEntry = {this.state.disableEntry} selectedCat = {this.state.selectedCat} switchCat = {this.switchCat} curAmount = {this.state.curAmount} getAmount = {this.getAmount} getMonthDetail = {this.getMonthDetail}/>)
+            return (<AddView showMainModal = {this.showMainModal} switchModal = {this.switchModal} selectedDate = {this.state.selectedDate} addEntry = {this.addEntry} disableEntry = {this.state.disableEntry} selectedCat = {this.state.selectedCat} switchCat = {this.switchCat} curAmount = {this.state.curAmount} getAmount = {this.getAmount} getMonthDetail = {this.getMonthDetail} responsiveState = {this.state.responsiveState} monthDetail = {this.state.monthDetail} selectedMonth = {this.state.selectedMonth} setModalPayload = {this.setModalPayload}/>)
         }
         else if (this.state.currentView == 'month'){
-            return (<MonthView showMainModal = {this.showMainModal} switchModal = {this.switchModal} monthDetail = {this.state.monthDetail} recentEntry = {this.state.recentEntry} getMonthDetail = {this.getMonthDetail} getRecentEntry = {this.getRecentEntry} catEntry = {this.state.catEntry} getCatEntry = {this.getCatEntry} selectedMonth = {this.state.selectedMonth} setModalPayload = {this.setModalPayload} switchSelectedMonth = {this.switchSelectedMonth}/>)
+            return (<MonthView showMainModal = {this.showMainModal} switchModal = {this.switchModal} monthDetail = {this.state.monthDetail} recentEntry = {this.state.recentEntry} getMonthDetail = {this.getMonthDetail} getRecentEntry = {this.getRecentEntry} catEntry = {this.state.catEntry} getCatEntry = {this.getCatEntry} selectedMonth = {this.state.selectedMonth} setModalPayload = {this.setModalPayload} switchSelectedMonth = {this.switchSelectedMonth} responsiveState = {this.state.responsiveState}/>)
         }
         else{
             return(
-                <HistoryView history = {this.state.history} getHistory = {this.getHistory}  switchSelectedMonth = {this.switchSelectedMonth} switchView = {this.switchView} barChartEndMonth = {this.state.barChartEndMonth} switchBarChartMonth = {this.switchBarChartMonth} switchBarChartFilter = {this.switchBarChartFilter} barChartFilter = {this.state.barChartFilter}/>
+                <HistoryView history = {this.state.history} getHistory = {this.getHistory}  switchSelectedMonth = {this.switchSelectedMonth} switchView = {this.switchView} barChartEndMonth = {this.state.barChartEndMonth} switchBarChartMonth = {this.switchBarChartMonth} switchBarChartFilter = {this.switchBarChartFilter} barChartFilter = {this.state.barChartFilter} switchModal = {this.switchModal} showMainModal = {this.showMainModal} responsiveState = {this.state.responsiveState}/>
             )
         }
     }
@@ -222,7 +279,7 @@ export class Page extends React.Component{
                     <div className = "mt-3" id = "navMockup">mockup</div>
                 </div>
                 <Nav currentView = {this.state.currentView} switchView = {this.switchView} switchSelectedMonth = {this.switchSelectedMonth}/>
-                <Modal hideMainModal = {this.hideMainModal} modalData = {this.state.modalData} switchDate = {this.switchDate} modalPayload = {this.state.modalPayload} deleteEntry = {this.deleteEntry} updateEntry = {this.updateEntry} selectedMonth = {this.state.selectedMonth} switchSelectedMonth = {this.switchSelectedMonth} monthDetail = {this.state.monthDetail}/>
+                <Modal hideMainModal = {this.hideMainModal} modalData = {this.state.modalData} switchDate = {this.switchDate} modalPayload = {this.state.modalPayload} deleteEntry = {this.deleteEntry} updateEntry = {this.updateEntry} selectedMonth = {this.state.selectedMonth} switchSelectedMonth = {this.switchSelectedMonth} monthDetail = {this.state.monthDetail} barChartFilter = {this.state.barChartFilter} switchBarChartFilter = {this.switchBarChartFilter}/>
                 <div className = "custom-modal-backdrop d-none" id = "modalBackdrop"></div>
             </div>
         )
@@ -234,14 +291,37 @@ class AddView extends React.Component{
         super(props);
     }
     componentDidMount(){
+        let date = formatToday();
+        let month = (this.props.selectedMonth == 'current'?(date.split('-')[0]+date.split('-')[1]):this.props.selectedMonth);
+        month = parseInt(month);
+
         this.props.getAmount();
+        this.props.getMonthDetail(month);
     }
     render(){
-        return[
-            <div className = "text-center custom-varela-round mt-auto mb-3 flex-shrink-0" id = "addViewAmount" key = "addViewAmount">{currencyFormat(this.props.curAmount)}</div>,
-            <InputGroup showMainModal = {this.props.showMainModal} switchModal = {this.props.switchModal} selectedDate = {this.props.selectedDate} addEntry = {this.props.addEntry} disableEntry = {this.props.disableEntry} selectedCat = {this.props.selectedCat} key = "InputGroup"/>,
-            <div className = "d-flex mb-auto flex-shrink-0" key = "categorySelect"><Category selectedCat = {this.props.selectedCat} switchCat = {this.props.switchCat}/></div>
-        ]
+        if (this.props.responsiveState == 1){
+            return[
+                <div className = "text-center custom-varela-round mt-auto mb-3 flex-shrink-0" id = "addViewAmount" key = "addViewAmount">{currencyFormat(this.props.curAmount)}</div>,
+                <InputGroup showMainModal = {this.props.showMainModal} switchModal = {this.props.switchModal} selectedDate = {this.props.selectedDate} addEntry = {this.props.addEntry} disableEntry = {this.props.disableEntry} selectedCat = {this.props.selectedCat} key = "InputGroup"/>,
+                <div className = "d-flex mb-auto flex-shrink-0" key = "categorySelect"><Category selectedCat = {this.props.selectedCat} switchCat = {this.props.switchCat}/></div>
+            ]
+        }
+        else{
+            let date = formatToday();
+            let month = (this.props.selectedMonth == 'current'?(date.split('-')[0]+date.split('-')[1]):this.props.selectedMonth);
+            month = month.toString();
+
+            return(
+                <div className = "d-flex flex-row flex-shrink-0 my-auto">
+                    <div className = "d-flex flex-shrink-0 my-auto mr-5" key = "doughnutChart"><Doughnut monthDetail = {this.props.monthDetail} selectedMonth = {this.props.selectedMonth}/></div>
+                    <div className = "d-flex flex-column flex-shrink-0">
+                        <InputGroup showMainModal = {this.props.showMainModal} switchModal = {this.props.switchModal} selectedDate = {this.props.selectedDate} addEntry = {this.props.addEntry} disableEntry = {this.props.disableEntry} selectedCat = {this.props.selectedCat} key = "InputGroup"/>
+                        <div className = "d-flex mb-auto flex-shrink-0" key = "categorySelect"><Category selectedCat = {this.props.selectedCat} switchCat = {this.props.switchCat}/></div>
+                    </div>
+                </div>
+            )
+        }
+        
     }
 }
 
@@ -255,6 +335,7 @@ class MonthView extends React.Component{
         month = parseInt(month);
 
         this.props.getMonthDetail(month);
+        this.props.getRecentEntry(month);
     }
     render(){
         if (!this.props.monthDetail || this.props.monthDetail.length==0) return <div></div>;
@@ -280,29 +361,71 @@ class MonthView extends React.Component{
         let leftMonth = 0;
         let rightMonth = 0;
 
-        if (this.props.monthDetail){
+        if (this.props.monthDetail.length != 0){
             let curIndex = this.props.monthDetail[4].indexOf(month);
             if (curIndex == 0) leftStyles = ['','text-gray-2','far fa-circle'];
             else leftMonth = parseInt(this.props.monthDetail[4][curIndex-1]);
             if (curIndex == (this.props.monthDetail[4].length-1)) rightStyles = ['','text-gray-2',' far fa-circle'];
             else rightMonth = parseInt(this.props.monthDetail[4][curIndex+1]);
+        
+        }
+
+        let recentPills = [];
+        if (this.props.recentEntry.length != 0){
+            let i = 0;
+            for (let entry of this.props.recentEntry){
+                let rank = '';
+
+                if (i == 0) rank = 'top';
+                else if (i == this.props.recentEntry.length-1) rank = "btm";
+                else rank = 'mid';
+
+                if (i == 0 && i == this.props.recentEntry.length-1) rank = "whole";
+
+                recentPills.push(<EntryPill rank = {rank} amount = {parseFloat(entry.amount)} comment = {entry.comment} day = {parseInt(entry.day)} selectedMonth = {this.props.selectedMonth}  key = {"recent"+entry.id} showMainModal = {this.props.showMainModal} switchModal = {this.props.switchModal} entryID = {entry.id} cat = {entry.cat} setModalPayload = {this.props.setModalPayload} displayCat = {true}/>);
+                i++;
+            }
             
         }
 
-        return[
-            <div className = "d-flex mt-auto flex-row mx-auto fs-15rem mb-3 bg-gray-1 round-2rem flex-shrink-0"  key = "monthSelect" id = "monthControl">
-                <div className = {`${leftStyles[0]} ${leftStyles[1]} round-2rem d-flex`} onClick = {()=>{if (leftMonth!=0) this.props.switchSelectedMonth(leftMonth)}}><i className={`${leftStyles[2]} my-auto mx-3`}></i></div>
-                <div className = "py-1 px-3 mx-auto custom-varela-round text-primaryblue round-2rem action-item" onClick = {()=>{
-                    this.props.switchModal('month');
-                    this.props.showMainModal();
-                }}>{monthStr}</div>
-                <div className = {`${rightStyles[0]} ${rightStyles[1]} round-2rem d-flex`} onClick = {()=>{if (rightMonth!=0) this.props.switchSelectedMonth(rightMonth)}}><i className={`${rightStyles[2]} my-auto mx-3`}></i></div>
-            </div>,
-            <div className = "d-flex flex-shrink-0" key = "doughnutChart"><Doughnut monthDetail = {this.props.monthDetail} selectedMonth = {this.props.selectedMonth}/></div>,
-            <div className = "d-flex mb-auto flex-column flex-shrink-0" key = "catPillsContainer">
-                {catPills}
-            </div>
-        ]
+        if (this.props.responsiveState == 1){
+            return[
+                <div className = "d-flex mt-auto flex-row mx-auto fs-15rem mb-3 bg-gray-1 round-2rem flex-shrink-0"  key = "monthSelect" id = "monthControl">
+                    <div className = {`${leftStyles[0]} ${leftStyles[1]} round-2rem d-flex`} onClick = {()=>{if (leftMonth!=0) this.props.switchSelectedMonth(leftMonth)}}><i className={`${leftStyles[2]} my-auto mx-3`}></i></div>
+                    <div className = "py-1 px-3 mx-auto custom-varela-round text-primaryblue round-2rem action-item" onClick = {()=>{
+                        this.props.switchModal('month');
+                        this.props.showMainModal();
+                    }}>{monthStr}</div>
+                    <div className = {`${rightStyles[0]} ${rightStyles[1]} round-2rem d-flex`} onClick = {()=>{if (rightMonth!=0) this.props.switchSelectedMonth(rightMonth)}}><i className={`${rightStyles[2]} my-auto mx-3`}></i></div>
+                </div>,
+                <div className = "d-flex flex-shrink-0" key = "doughnutChart"><Doughnut monthDetail = {this.props.monthDetail} selectedMonth = {this.props.selectedMonth}/></div>,
+                <div className = "d-flex mb-auto flex-column flex-shrink-0" key = "catPillsContainer">
+                    {catPills}
+                </div>
+            ]
+        }
+        else{
+            return(
+                <div className = "d-flex flex-shrink-0 m-auto">
+                    <div className = "d-flex flex-shrink-0 flex-column mr-5">
+                        <div className = "d-flex flex-row mx-auto fs-15rem my-3 bg-gray-1 round-2rem flex-shrink-0"  key = "monthSelect" id = "monthControl">
+                            <div className = {`${leftStyles[0]} ${leftStyles[1]} round-2rem d-flex`} onClick = {()=>{if (leftMonth!=0) this.props.switchSelectedMonth(leftMonth)}}><i className={`${leftStyles[2]} my-auto mx-3`}></i></div>
+                            <div className = "py-1 px-3 mx-auto custom-varela-round text-primaryblue round-2rem action-item" onClick = {()=>{
+                                this.props.switchModal('month');
+                                this.props.showMainModal();
+                            }}>{monthStr}</div>
+                            <div className = {`${rightStyles[0]} ${rightStyles[1]} round-2rem d-flex`} onClick = {()=>{if (rightMonth!=0) this.props.switchSelectedMonth(rightMonth)}}><i className={`${rightStyles[2]} my-auto mx-3`}></i></div>
+                        </div>
+                        <div className = "d-flex flex-shrink-0 flex-column mb-3" key = "doughnutChart"><Doughnut monthDetail = {this.props.monthDetail} selectedMonth = {this.props.selectedMonth}/></div>
+                        <div className = "d-flex flex-shrink-0 flex-column ">{recentPills}</div>
+                    </div>
+                    <div className = "d-flex flex-shrink-0 flex-column" key = "catPillsContainer" id = "catPillsContainer">
+                    {catPills}
+                </div>
+                </div>
+            )
+        }
+        
 
 
     }
@@ -344,14 +467,16 @@ class HistoryView extends React.Component{
             for (let monthStr in this.props.history){
                 months.push(monthStr);
             }
-            let limit = 3;
+            let limit = this.props.responsiveState == 1?3:6;
+
+            
             
             let d = formatToday()
             endMonth = this.props.barChartEndMonth == 'current'?(d.split('-')[0]+d.split('-')[1]):this.props.barChartEndMonth;;
             endMonth = endMonth.toString();
             let endMonthIdx = months.indexOf(endMonth);
             let startMonthIdx = endMonthIdx - limit + 1;
-            if (startMonthIdx <0) startMonthIdx == 0;
+            if (startMonthIdx <0) startMonthIdx = 0;
             startMonth = months[startMonthIdx];
 
             if (endMonthIdx <= limit-1) leftStyles = ['','text-gray-2','far fa-circle'];
@@ -363,14 +488,17 @@ class HistoryView extends React.Component{
         }
 
         return[
-            <div className = "d-flex mt-auto flex-row mx-auto fs-15rem mb-3 bg-gray-1 round-2rem flex-shrink-0"  key = "monthSelect" id = "monthControl">
+            <div className = "d-flex mt-auto flex-row mx-auto fs-15rem mb-3 bg-gray-1 round-2rem flex-shrink-0"  key = "monthSelect" id ={"monthControl"+this.props.responsiveState}>
                 <div className = {`${leftStyles[0]} ${leftStyles[1]} round-2rem d-flex`} onClick = {()=>{if (leftMonth!=0) this.props.switchBarChartMonth(leftMonth)}}><i className={`${leftStyles[2]} my-auto mx-3`}></i></div>
                 <div className = "py-1 mx-auto custom-varela-round round-2rem">{title}</div>
                 <div className = {`${rightStyles[0]} ${rightStyles[1]} round-2rem d-flex`} onClick = {()=>{if (rightMonth!=0) this.props.switchBarChartMonth(rightMonth)}}><i className={`${rightStyles[2]} my-auto mx-3`}></i></div>
             </div>,
-            <div className = "d-flex flex-row mb-3 bg-lightblue round-2rem flex-shrink-0 py-1 custom-varela-round text-primaryblue action-item" key = "filterControl" onClick = {()=>{}}><i className="fas fa-filter ml-auto mr-1 my-auto"></i><div className = "mr-auto">No filter</div></div>,
-            <div className = "d-flex flex-shrink-0" key = "barlineChart"><BarLine history = {this.props.history} barChartEndMonth = {this.props.barChartEndMonth}/></div>,
-            <div className = "d-flex mb-auto flex-column flex-shrink-0" key = "catPillsContainer">
+            <div className = {"d-flex mx-auto flex-row mb-3 round-2rem flex-shrink-0 py-1 custom-varela-round action-item "+(this.props.barChartFilter.length==0?"bg-lightblue text-primaryblue":"bg-primaryblue text-white")} key = "filterControl" id = {"filterControl"+this.props.responsiveState} onClick = {()=>{
+                this.props.switchModal('filter');
+                this.props.showMainModal();
+            }}><i className="fas fa-filter ml-auto mr-1 my-auto"></i><div className = "mr-auto">{this.props.barChartFilter.length!=0?"Filter activated":"No filter"}</div></div>,
+            <div className = "d-flex flex-shrink-0" key = "barlineChart"><BarLine history = {this.props.history} barChartEndMonth = {this.props.barChartEndMonth} barChartFilter = {this.props.barChartFilter} responsiveState = {this.props.responsiveState} key = {"barline_"+this.props.responsiveState}/></div>,
+            <div className = "d-flex mb-auto flex-column flex-shrink-0" key = "monthPillsContainer">
                 {monthPills}
             </div>
         ]

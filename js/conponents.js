@@ -232,17 +232,82 @@ export class Modal extends React.Component{
 
             case 'month':
                 let monthList = [];
-                for (let monthStr of this.props.monthDetail[4]){
-                    monthList.push(<div className = "d-flex mx-auto my-3 text-primaryblue action-item fs-12rem font-weight-bold custom-varela-round" key = {"switchMonth"+monthStr} onClick = {()=>{
-                        this.props.switchSelectedMonth(parseInt(monthStr));
-                        this.props.hideMainModal();
-                    }}>{globalVar.monthRef[parseInt(monthStr.substr(4,2))]+"-"+monthStr.substr(0,4)}</div>);
-                }
+                if (this.props.monthDetail.length != 0){
+                    for (let monthStr of this.props.monthDetail[4]){
+                        monthList.push(<div className = "d-flex mx-auto my-3 text-primaryblue action-item fs-12rem font-weight-bold custom-varela-round" key = {"switchMonth"+monthStr} onClick = {()=>{
+                            this.props.switchSelectedMonth(parseInt(monthStr));
+                            this.props.hideMainModal();
+                        }}>{globalVar.monthRef[parseInt(monthStr.substr(4,2))]+"-"+monthStr.substr(0,4)}</div>);
+                    }
+                } 
+               
                 modalContent = 
                 <div className = "round-2rem d-flex w-100 flex-column">
                     {monthList}
                 </div>
                 break;
+
+            case 'filter':
+                let filters = [];
+                let checked = this.props.barChartFilter.length==0?true:false;
+                filters.push(
+                    <div className = "d-flex flex-row mx-3 my-3" key = "all-filter">
+                        <i className="fas fa-th my-auto text-gray-2 fs-12rem ml-3" style = {{width:'3rem'}}></i>
+                        <div className = "fs-12rem m-auto">All</div>
+                        <div className="custom-control custom-switch my-auto">
+                            <input type="checkbox" className="custom-control-input my-auto" id={`filterSwitch-all`} checked = {checked} onChange = {(e)=>{
+                                if (this.props.barChartFilter.length==0){
+                                    let filter = [];
+                                    for (let c in globalVar.catRef){
+                                        filter.push(c);
+                                    }
+                                    this.props.switchBarChartFilter(filter);
+                                }
+                                else{
+                                    this.props.switchBarChartFilter([]);
+                                }
+                            }}/>
+                            <label className={`custom-control-label filter-all my-auto`} htmlFor={`filterSwitch-all`}></label>
+                        </div>
+                    </div>
+                );
+                filters.push(<hr className = "my-0 p-0 mx-3" key = "hr"/>);
+                for (let cat in globalVar.catRef){
+                    let checked = this.props.barChartFilter.indexOf(cat)==-1?true:false;
+                    filters.push(
+                    <div className = "d-flex flex-row mx-3" key = {cat+"-filter"}>
+                        <img className = "filter-img" src = {`./img/icon_${cat}_I.svg`}/>
+                        <div className = "fs-12rem m-auto">{globalVar.catRef[cat]}</div>
+                        <div className="custom-control custom-switch my-auto">
+                            <input type="checkbox" className="custom-control-input my-auto" id={`filterSwitch-${cat}`} checked = {checked} onChange = {(e)=>{
+                                if (this.props.barChartFilter.indexOf(cat)!=-1){
+                                    let filter = [];
+                                    for (let c of this.props.barChartFilter){
+                                        if (c != cat) filter.push(c);
+                                    }
+                                    this.props.switchBarChartFilter(filter);
+                                }
+                                else{
+                                    let filter = this.props.barChartFilter;
+                                    filter.push(cat);
+                                    this.props.switchBarChartFilter(filter);
+                                }
+                            }}/>
+                            <label className={`custom-control-label filter-${cat} my-auto`} htmlFor={`filterSwitch-${cat}`}></label>
+                        </div>
+                    </div>
+                    );
+                }
+                modalContent = 
+                <div className = "round-2rem d-flex w-100 flex-column custom-varela-round">
+                    <div className = "d-flex text-center fs-12rem mt-3 mx-auto font-weight-bold mb-3 mb-3">Category on chart</div>
+                    {filters}
+                    <div className = "d-flex action-item text-gray-2 bg-gray-1 round-2rem mx-3 my-3" onClick = {()=>{this.props.hideMainModal()}}>
+                        <div className = "m-auto round-2rem">Close</div>
+                    </div>
+                </div>
+                break;
+
             default:
                 break;
         }
@@ -366,34 +431,31 @@ export class BarLine extends React.Component{
         let months = [];
 
         for (let cat in globalVar.catRef){
-            datasets[cat] = [];
+            if (this.props.barChartFilter.indexOf(cat) == -1) datasets[cat] = [];
         }
         for (let monthStr in this.props.history){
             months.push(monthStr);
             labels.push(globalVar.monthRef[parseInt(monthStr.substr(4,2))]+"-"+monthStr.substr(0,4));
-            total.push(parseFloat(this.props.history[monthStr][0].toFixed(2)));
             let cats = this.props.history[monthStr][1];
+            let monthTotal = 0.0;
             for (let cat in cats){
-                datasets[cat].push(parseFloat(parseFloat(cats[cat]).toFixed(2)));
+                if (this.props.barChartFilter.indexOf(cat) == -1){
+                    datasets[cat].push(parseFloat(parseFloat(cats[cat]).toFixed(2)));
+                    monthTotal += parseFloat(parseFloat(cats[cat]).toFixed(2));
+                }
             }
+            total.push(monthTotal);
         }
         let endMonthIdx = months.reverse().indexOf(endMonth);
 
-        let limit = 3;
+        let limit = this.props.responsiveState == 1?3:6;
 
         labels = labels.reverse().slice(endMonthIdx,endMonthIdx+limit).reverse();
         total = total.reverse().slice(endMonthIdx,endMonthIdx+limit).reverse();
 
         let payload = [];
 
-        let totalObj = {}
-        totalObj.data = total;
-        totalObj.type = 'line';
-        totalObj.label = "Total";
-        totalObj.backgroundColor = "#4D4D4D";
-        totalObj.borderColor = "#4D4D4D";
-        totalObj.fill = false;
-        payload.push(totalObj);
+        let catLabels = ['Total'];
 
         for (let cat in datasets){
             let obj = {};
@@ -403,22 +465,46 @@ export class BarLine extends React.Component{
             obj.label = globalVar.catRef[cat];
             obj.backgroundColor = globalVar.colorRef[cat];
             payload.push(obj);
+            catLabels.push(globalVar.catRef[cat]);
         }
 
+        let totalObj = {}
+        totalObj.data = total;
+        totalObj.type = 'line';
+        totalObj.label = "Total";
+        totalObj.backgroundColor = "#4D4D4D";
+        totalObj.borderColor = "#4D4D4D";
+        totalObj.fill = false;
+        payload.unshift(totalObj);
+        let prevCatLabels = [];
+
+        if (globalVar.barline.config.data.datasets.length != 0){
+            
+            for (let dataset of globalVar.barline.config.data.datasets){
+                prevCatLabels.push(dataset.label);
+            }
+        }
+        else prevCatLabels.push('Total');
+
         if (Object.entries(this.props.history).length != 0){
-            if (globalVar.barline.config.data.labels.length == 0) globalVar.barline.updatePending = true;
+            if (globalVar.barline.config.data.labels.length == 0){
+                globalVar.barline.updatePending = true;
+                globalVar.barline.config.data.labels = labels;
+                globalVar.barline.config.data.datasets = payload;
+            }
             else{
-                if (!(JSON.stringify(labels) === JSON.stringify(globalVar.barline.config.data.labels))) globalVar.barline.updatePending = true;
+                if (!(JSON.stringify(labels) === JSON.stringify(globalVar.barline.config.data.labels)) || !(JSON.stringify(prevCatLabels) === JSON.stringify(catLabels))){
+                    
+                    globalVar.barline.config.data.labels = labels;
+                    globalVar.barline.config.data.datasets = payload;   globalVar.barline.updatePending = true;
+                }
                 else globalVar.barline.updatePending = false;
             }
-
-            globalVar.barline.config.data.labels = labels;
-            globalVar.barline.config.data.datasets = payload;
         }
         else globalVar.barline.updatePending = false;
         
         return(
-           <div className = "d-flex" id = "barlineContainer">
+           <div className = "d-flex" id = {"barlineContainer"+this.props.responsiveState}>
                <canvas className = "m-auto" id = "barline"></canvas>
            </div>
         )
@@ -544,11 +630,15 @@ export class EntryPill extends React.Component{
         let d = this.props.day.toString().padStart(2,'0');
 
         let entryDate = new Date(y+"-"+m+"-"+d);
+        let catIndicator = '';
+        if (this.props.displayCat){
+            catIndicator = <div className = "my-auto mr-1 round-2rem" style = {{backgroundColor:globalVar.colorRef[this.props.cat],height:'0.5rem',width:'0.5rem'}}></div>;
+        }
 
         return (
             <div className = {"d-flex flex-column custom-varela-round cat-detail "+borderCSS}>
                 <div className = "d-flex mx-3 mt-auto">
-                    <div className = "text-gray-2 mr-auto">{this.props.comment}</div>
+                    <div className = "text-gray-2 mr-auto d-flex">{catIndicator}<div className ="d-flex">{this.props.comment}</div></div>
                     <div className = "text-gray-2 ml-auto">{`${entryDate.toUTCString().substr(0,3)}, ${this.props.day}`}</div>
                 </div>
                 <div className = "d-flex mx-3 mb-auto">

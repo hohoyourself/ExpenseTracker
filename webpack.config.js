@@ -1,6 +1,6 @@
 const path = require('path');
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     entry: {
         control: './js/control.js'
     },

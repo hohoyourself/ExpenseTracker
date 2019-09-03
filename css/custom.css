@@ -43,12 +43,31 @@ select{
 #mainView{
     height: 100vh;
 }
-#barlineContainer{
+#barlineContainer1{
     width: 19.5rem;
     height: 19.5rem;
 }
+#barlineContainer2{
+    width: 40rem;
+    height: 20rem;
+}
 #monthControl{
     width:19.5rem;
+}
+#monthControl1{
+    width:19.5rem;
+}
+#monthControl2{
+    width:40rem;
+}
+#catPillsContainer{
+    width:19.5rem;
+}
+#filterControl1{
+    width:19.5rem;
+}
+#filterControl2{
+    width:40rem;
 }
 
 /* colors start */
@@ -125,6 +144,87 @@ select{
     outline: 0;
     box-shadow: none;
 }
+.custom-control-input:focus{
+    outline: 0;
+    box-shadow: none;
+}
+.custom-control-input:focus~.custom-control-label::before {
+    border-color: #adb5bd !important;
+    box-shadow: none !important;
+}
+
+.custom-switch {
+    padding-left: 2.75rem;
+}
+.custom-switch .custom-control-input:checked~.custom-control-label::after {
+    background-color: #fff;
+    -webkit-transform: translateX(1.25rem);
+    transform: translateX(1.25rem);
+}
+.custom-switch .custom-control-label::after {
+    top: calc(0rem + 2px);
+    left: calc(-2.75rem + 2px);
+    width: calc(1.5rem - 4px);
+    height: calc(1.5rem - 4px);
+    background-color: #adb5bd;
+    border-radius: 2rem;
+}
+.custom-switch .custom-control-label::before {
+    left: -2.75rem !important;
+    width: 2.75rem;
+    height: 1.5rem;
+    pointer-events: all;
+    border-radius: 2rem;
+    top:0;
+    left:0;
+}
+.custom-control-input:not(:disabled):active~.custom-control-label::before {
+    color: #fff;
+    background-color: #fff;
+    border-color: #adb5bd;
+}
+
+.custom-control-input:checked~.filter-meal::before {
+    border-color: #FFAC0F !important;
+    background-color: #FFAC0F !important;
+}
+.custom-control-input:checked~.filter-gro::before {
+    border-color: #FF7E00 !important;
+    background-color: #FF7E00 !important;
+}
+.custom-control-input:checked~.filter-trans::before {
+    border-color: #FF590D !important;
+    background-color: #FF590D !important;
+}
+.custom-control-input:checked~.filter-leis::before {
+    border-color: #0BBBFD !important;
+    background-color: #0BBBFD !important;
+}
+.custom-control-input:checked~.filter-shop::before {
+    border-color: #A7DCFF !important;
+    background-color: #A7DCFF !important;
+}
+.custom-control-input:checked~.filter-util::before {
+    border-color: #FFCB0D !important;
+    background-color: #FFCB0D !important;
+}
+.custom-control-input:checked~.filter-app::before {
+    border-color: #007DFF !important;
+    background-color: #007DFF !important;
+}
+.custom-control-input:checked~.filter-admin::before {
+    border-color: #2F4EB4 !important;
+    background-color: #2F4EB4 !important;
+}
+.custom-control-input:checked~.filter-misc::before {
+    border-color: #00365C !important;
+    background-color: #00365C !important;
+}
+.custom-control-input:checked~.filter-all::before {
+    border-color: #A4A4A4 !important;
+    background-color: #A4A4A4 !important;
+}
+
 /* bootstrap overwrite end */
 
 /* keyframe start */
@@ -294,6 +394,7 @@ select{
     border-top: 1pt solid #cccccc;
     border-left: 1pt solid #cccccc;
     border-right: 1pt solid #cccccc;
+    border-bottom: 1pt solid #cccccc;
     border-top-left-radius: 1.25rem;
     border-top-right-radius: 1.25rem;
 }
@@ -308,4 +409,15 @@ select{
     border-right: 1pt solid #cccccc;
     border-bottom-left-radius: 1.25rem;
     border-bottom-right-radius: 1.25rem;
+}
+.entry-border-whole{
+    border-top: 1pt solid #cccccc;
+    border-left: 1pt solid #cccccc;
+    border-right: 1pt solid #cccccc;
+    border-bottom: 1pt solid #cccccc;
+    border-radius: 1.25rem;
+}
+.filter-img{
+    height:3rem;
+    width:3rem;
 }
