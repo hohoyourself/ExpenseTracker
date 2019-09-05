@@ -14,6 +14,8 @@ export class Page extends React.Component{
             selectedCat : "none",
             modalData : "",
             selectedDate : "Today",
+            previewMonth : "",
+            previewDate: "",
             curAmount : 0.0,
             disableEntry:false,
             monthDetail: [],
@@ -34,6 +36,8 @@ export class Page extends React.Component{
         this.switchSelectedMonth = this.switchSelectedMonth.bind(this);
         this.switchBarChartMonth = this.switchBarChartMonth.bind(this);
         this.switchBarChartFilter = this.switchBarChartFilter.bind(this);
+        this.switchPreviewDate = this.switchPreviewDate.bind(this);
+        this.switchPreviewMonth = this.switchPreviewMonth.bind(this);
         this.showMainModal = this.showMainModal.bind(this);
         this.hideMainModal = this.hideMainModal.bind(this);
         this.hideMainModalCB = this.hideMainModalCB.bind(this);
@@ -67,6 +71,8 @@ export class Page extends React.Component{
 
         if (globalVar.doughnut.chart != ''){globalVar.doughnut.chart.destroy();globalVar.doughnut.chart = ''}
         if (globalVar.barline.chart != ''){globalVar.barline.chart.destroy();globalVar.barline.chart = ''}
+
+        globalVar.doughnut.config.options.animation.animateRotate = true;
         globalVar.doughnut.config.data = {datasets:[],labels:[]}
         globalVar.barline.config.data = {datasets:[],labels:[]}
 
@@ -93,10 +99,20 @@ export class Page extends React.Component{
         });
         document.getElementById('mainView').removeEventListener("animationend", this.switchViewCB);
     }
+    switchPreviewDate(newDate){
+        this.setState({previewDate:newDate});
+    }
+    switchPreviewMonth(newMonth){
+        this.setState({previewMonth:newMonth});
+    }
     switchCat(newCat){
         if (this.state.selectedCat != newCat) this.setState({selectedCat:newCat});
     }
     switchModal(newModal){
+        if (newModal == 'date')this.setState({
+            previewDate:(this.state.selectedDate == 'Today' ?formatToday():this.state.selectedDate),
+            previewMonth:(this.state.selectedDate == 'Today' ?'':this.state.selectedDate.substr(0,7)),
+        })
         if (this.state.modalData != newModal) this.setState({modalData:newModal});
     }
     setModalPayload(payload){
@@ -279,7 +295,7 @@ export class Page extends React.Component{
                     <div className = "mt-3" id = "navMockup">mockup</div>
                 </div>
                 <Nav currentView = {this.state.currentView} switchView = {this.switchView} switchSelectedMonth = {this.switchSelectedMonth}/>
-                <Modal hideMainModal = {this.hideMainModal} modalData = {this.state.modalData} switchDate = {this.switchDate} modalPayload = {this.state.modalPayload} deleteEntry = {this.deleteEntry} updateEntry = {this.updateEntry} selectedMonth = {this.state.selectedMonth} switchSelectedMonth = {this.switchSelectedMonth} monthDetail = {this.state.monthDetail} barChartFilter = {this.state.barChartFilter} switchBarChartFilter = {this.switchBarChartFilter}/>
+                <Modal hideMainModal = {this.hideMainModal} modalData = {this.state.modalData} switchDate = {this.switchDate} selectedDate = {this.state.selectedDate} modalPayload = {this.state.modalPayload} deleteEntry = {this.deleteEntry} updateEntry = {this.updateEntry} selectedMonth = {this.state.selectedMonth} switchSelectedMonth = {this.switchSelectedMonth} monthDetail = {this.state.monthDetail} barChartFilter = {this.state.barChartFilter} switchBarChartFilter = {this.switchBarChartFilter} previewDate = {this.state.previewDate} previewMonth = {this.state.previewMonth} switchPreviewDate = {this.switchPreviewDate} switchPreviewMonth = {this.switchPreviewMonth}/>
                 <div className = "custom-modal-backdrop d-none" id = "modalBackdrop"></div>
             </div>
         )

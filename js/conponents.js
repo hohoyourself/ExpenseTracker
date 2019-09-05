@@ -2,7 +2,7 @@ globalVar;
 import React from 'react';
 import $ from 'jquery';
 import Chart from 'chart.js'
-import {currencyFormat, formatToday} from './function.js'
+import {currencyFormat, formatToday, formatDay} from './function.js'
 import { strict } from 'assert';
 
 Chart.defaults.global.defaultFontFamily = "'Varela Round', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif";
@@ -102,7 +102,10 @@ export class InputGroup extends React.Component{
             <div className = "d-flex flex-column mb-4 mx-auto flex-shrink-0" id = "addViewInputGroup">
                 <div className = "d-flex flex-row round-2rem mb-3 border-lightgray">
                     <input className = "form-control round-2rem w-50 custom-varela-round border-0" type = "text" placeholder = "Comment" id = "addComment" maxLength = "25"/>
-                    <div className = "d-flex flex-row w-50 round-2rem bg-lightblue outline-lightblue action-item" onClick = {()=>{this.props.switchModal('date');this.props.showMainModal()}}>
+                    <div className = "d-flex flex-row w-50 round-2rem bg-lightblue outline-lightblue action-item" onClick = {()=>{
+                        this.props.switchModal('date');
+                        this.props.showMainModal();
+                    }}>
                         <div className = "round-2rem text-primaryblue d-flex"><i className="fas fa-calendar my-auto ml-3" /></div>
                         <div className = "m-auto round-2rem custom-varela-round text-primaryblue bg-lightblue m-auto font-weight-bold">
                             {this.props.selectedDate}
@@ -119,10 +122,15 @@ export class InputGroup extends React.Component{
         )
     }
 }
-
+  
 export class Modal extends React.Component{
     constructor(props){
         super(props);
+
+        this.state = {
+            previewMonth : "",
+            previewDate: ""
+        }
     }
     componentDidUpdate(){
         if (this.props.modalData == 'edtEntry'){
@@ -142,11 +150,86 @@ export class Modal extends React.Component{
         let modalContent = '';
         switch (this.props.modalData){
             case 'date':
+                let d = '';
+
+                if (this.props.previewMonth == '') d = new Date(formatToday().substr(0,7)+"-01");
+                else d = new Date(this.props.previewMonth+"-01");
+
+                let offset = d.getUTCDay();
+                let m = d.getUTCMonth();
+                
+                let monthStr = globalVar.monthRef[d.getUTCMonth()+1] + '-' + d.getUTCFullYear();
+
+                let prevMonth = new Date(d);
+                prevMonth.setUTCMonth(prevMonth.getUTCMonth()-1);
+                prevMonth = formatDay(prevMonth).substr(0,7);
+
+                let nextMonth = new Date(d);
+                nextMonth.setUTCMonth(nextMonth.getUTCMonth()+1);
+                nextMonth = formatDay(nextMonth).substr(0,7);
+
+                let dateBtns = [];
+
+                for (let i = 0;i<35;i++){
+                    let dayNum = i-offset;
+                    let dayStr = '';
+                    let btnStyle = '';
+                    let UTCStr = d.toUTCString();
+                    if (dayNum >= 0 && m == d.getUTCMonth()){
+                        dayStr = d.getUTCDate();
+                        if (this.props.previewDate != '' && formatDay(d)==this.props.previewDate) btnStyle = "bg-primaryblue text-white font-weight-bold";
+                        d.setUTCDate(d.getUTCDate()+1);
+                    }
+                    dateBtns.push(<div className = {"dateBtn mx-auto my-1 round-2rem d-flex action-item "+btnStyle} key = {"day_"+dayNum} onClick = {()=>{
+                        if (dayStr != ''){
+                            let selected = new Date(UTCStr);
+                            this.props.switchPreviewDate(formatDay(selected));
+                        }
+                    }}><div className = "m-auto">{dayStr}</div></div>);
+                }
+
                 modalContent = 
-                <div className = "round-2rem d-flex w-100">
-                    <input className = "form-control round-2rem text-center border-0 font-weight-bold" type = "date" id = "dateInput"/>
-                    <div className = "d-flex action-item custom-varela-round text-white bg-primaryblue round-2rem outline-primaryblue" onClick = {()=>{this.props.switchDate($('#dateInput').val());this.props.hideMainModal();}}>
-                        <div className = "my-auto mx-3 font-weight-bold round-2rem">Confirm</div>
+                <div className = "round-2rem d-flex w-100 custom-varela-round overflow-clip">
+                    <div className = "d-flex flex-column">
+                        <div className = "d-flex px-3 py-3 bg-lightblue mb-2">
+                            <div className = "d-flex mr-auto text-primaryblue ml-3 action-item" onClick = {()=>{this.props.switchPreviewMonth(prevMonth)}}><i className="my-auto fas fa-chevron-left fs-15rem"></i></div>
+                            <div className = "d-flex fs-15rem text-primaryblue font-weight-bold">{monthStr}</div>
+                            <div className = "d-flex ml-auto text-primaryblue mr-3 action-item" onClick = {()=>{this.props.switchPreviewMonth(nextMonth)}}><i className="my-auto fas fa-chevron-right fs-15rem"></i></div>
+                        </div>
+                        <div className = "d-flex mx-3 text-gray-2">
+                            <div className = "mx-auto">S</div>
+                            <div className = "mx-auto">M</div>
+                            <div className = "mx-auto">T</div>
+                            <div className = "mx-auto">W</div>
+                            <div className = "mx-auto">T</div>
+                            <div className = "mx-auto">F</div>
+                            <div className = "mx-auto">S</div>
+                        </div>
+                        <hr className = "my-2 mx-3"/>
+                        <div className = "d-flex flex-wrap mx-3">
+                            {dateBtns}
+                        </div>
+                        <hr className = "my-2 mx-3"/>
+                        <div className = "d-flex mx-3 mb-3 mt-2">
+                            <div className = "d-flex action-item text-white bg-primaryblue round-2rem mr-5 flex-grow-1" onClick = {()=>{
+                                this.props.switchPreviewDate(formatToday());
+                                this.props.switchPreviewMonth(formatToday().substr(0,7));
+                            }}>
+                                <div className = "m-auto round-2rem">Today</div>
+                            </div>
+                            <div className = "d-flex action-item text-gray-2 bg-gray-1 round-2rem ml-3 flex-grow-1" onClick = {()=>{this.props.hideMainModal()}}>
+                                <div className = "m-auto round-2rem">Cancel</div>
+                            </div>
+                            <div className = "d-flex action-item text-white bg-primaryblue round-2rem flex-grow-1 ml-3" onClick = {()=>{
+                                if (this.props.previewDate != ''){
+                                    if (this.props.previewDate == formatToday())  this.props.switchDate("Today");
+                                    else this.props.switchDate(this.props.previewDate);
+                                }
+                                this.props.hideMainModal();
+                            }}>
+                                <div className = "m-auto round-2rem">Set</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 break;
@@ -165,7 +248,7 @@ export class Modal extends React.Component{
                 modalContent = 
                 <div className = "round-2rem d-flex w-100 flex-column custom-varela-round">
                     <div className = "d-flex text-center fs-12rem my-3 text-red-1 mx-auto font-weight-bold">Delete the following enrty?</div>
-                    <div className = "d-flex mx-5 fs-12rem" >
+                    <div className = "d-flex mx-4 fs-12rem" >
                         <div className = "mr-auto">{this.props.modalPayload.comment}</div>
                         <div className = "ml-auto">{this.props.modalPayload.dayStr}</div>
                     </div>
@@ -195,7 +278,7 @@ export class Modal extends React.Component{
                     <div className = "d-flex text-center fs-12rem mt-3 text-orange-1 mx-auto font-weight-bold mb-3">Update entry</div>
                     <div className = "d-flex mx-3 fs-12rem flex-column">
                         <div className = "fs-08rem custom-varela-round mr-auto ml-2">Comment</div>
-                        <input className = "form-control round-2rem custom-varela-round mb-3" id = "updateComment" type = "text"/>
+                        <input className = "form-control round-2rem custom-varela-round mb-3" id = "updateComment" type = "text"  maxLength = "25"/>
                         <div className = "fs-08rem custom-varela-round mr-auto ml-2">Amount</div>
                         <input className = "form-control round-2rem custom-varela-round mb-3" id = "updateAmount" type = "number"/>
                         <div className = "fs-08rem custom-varela-round mr-auto ml-2">Date</div>
@@ -354,12 +437,12 @@ export class Doughnut extends React.Component{
         let graphData = {data:[],bgColor:[],labels:[]};
 
         for (let cat in monthCats){
-            graphData.data.push(Math.round((parseFloat(monthCats[cat])/amount)*100));
+            graphData.data.push(parseFloat(parseFloat(monthCats[cat])).toFixed(2));
             graphData.bgColor.push(globalVar.colorRef[cat]);
             graphData.labels.push(globalVar.catRef[cat]);
         }
         if (this.props.monthDetail.length != 0){
-            if (globalVar.doughnut.config.data.datasets[0]){
+            if (globalVar.doughnut.config.data.datasets.length != 0){
                 if (!(JSON.stringify(graphData.data) === JSON.stringify(globalVar.doughnut.config.data.datasets[0].data)) || !(JSON.stringify(graphData.labels) === JSON.stringify(globalVar.doughnut.config.data.labels))) globalVar.doughnut.updatePending = true;
                 else globalVar.doughnut.updatePending = false;
             }

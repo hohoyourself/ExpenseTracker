@@ -130,7 +130,7 @@ function getRecent(){
     $final = [];
 
     $con = start_con();
-    $sql = "SELECT * FROM entry$month ORDER BY day DESC LIMIT 5;";
+    $sql = "SELECT * FROM entry$month ORDER BY day DESC, id DESC LIMIT 5;";
     $result = mysqli_query($con,$sql);
     while($row = mysqli_fetch_assoc($result)){
         $final[] = $row;
