@@ -527,7 +527,7 @@ export class BarLine extends React.Component{
                     monthTotal += parseFloat(parseFloat(cats[cat]).toFixed(2));
                 }
             }
-            total.push(monthTotal);
+            total.push(parseFloat(parseFloat(monthTotal).toFixed(2)));
         }
         let endMonthIdx = months.reverse().indexOf(endMonth);
 

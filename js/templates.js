@@ -95,7 +95,8 @@ export class Page extends React.Component{
             selectedDate:"Today",
             monthDetail:[],
             history:{},
-            currentView:globalVar.newView
+            currentView:globalVar.newView,
+            disableEntry: false
         });
         document.getElementById('mainView').removeEventListener("animationend", this.switchViewCB);
     }
@@ -272,6 +273,7 @@ export class Page extends React.Component{
             this.getMonthDetail(month);
             this.getCatEntry(month,payload[1]); //prev cat
             this.getCatEntry(month,payload[5]); //cur cat
+            this.getRecentEntry(month);
         });
     }
     getView(){
@@ -485,8 +487,6 @@ class HistoryView extends React.Component{
             }
             let limit = this.props.responsiveState == 1?3:6;
 
-            
-            
             let d = formatToday()
             endMonth = this.props.barChartEndMonth == 'current'?(d.split('-')[0]+d.split('-')[1]):this.props.barChartEndMonth;;
             endMonth = endMonth.toString();
