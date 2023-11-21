@@ -1,10 +1,10 @@
-CREATE USER 'expenseTracker'@'%' IDENTIFIED BY 'track spending@Sandbox';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE ON ExpenseTracker.* TO 'expenseTracker'@'%';
-FLUSH PRIVILEGES;
-
 CREATE DATABASE IF NOT EXISTS ExpenseTracker;
 
 USE ExpenseTracker;
+
+CREATE USER 'expenseTracker'@'%' IDENTIFIED BY 'track spending@Sandbox';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE ON ExpenseTracker.* TO 'expenseTracker'@'%';
+FLUSH PRIVILEGES;
 
 CREATE TABLE IF NOT EXISTS avaMonth (
     month INT PRIMARY KEY

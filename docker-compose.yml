@@ -1,4 +1,5 @@
 version: '3'
+name: expense-tracker
 services:
   db:
     build: ./db
