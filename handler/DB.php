@@ -9,7 +9,7 @@ function start_con($usecase='browse'){
     global $username;
     global $pwd;
 
-    $con = mysqli_connect('localhost',$username,$pwd,"ExpenseTracker");
+    $con = mysqli_connect('db',$username,$pwd,"ExpenseTracker");
     return $con;
 }
 

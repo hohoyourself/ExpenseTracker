@@ -3,7 +3,6 @@ import React from 'react';
 import $ from 'jquery';
 import Chart from 'chart.js'
 import {currencyFormat, formatToday, formatDay} from './function.js'
-import { strict } from 'assert';
 
 Chart.defaults.global.defaultFontFamily = "'Varela Round', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif";
 

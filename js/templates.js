@@ -238,6 +238,7 @@ export class Page extends React.Component{
         fetch(`./handler/handler.php?request=delete&month=${payload[0]}&id=${payload[1]}`).then((response)=>{return response.json()}).then((obj)=>{
             this.getMonthDetail(payload[0]);
             this.getCatEntry(payload[0],payload[2]);
+            this.getRecentEntry(payload[0]);
         });
     }
     async addEntry(payload){

@@ -1,0 +1,14 @@
+version: '3'
+services:
+  db:
+    build: ./db
+    volumes:
+      - ExpenseTrackerDB:/var/lib/mysql
+    ports:
+      - '81:3306'
+  php:
+    build: .
+    ports:
+      - '8000:80'
+volumes: 
+  ExpenseTrackerDB:
