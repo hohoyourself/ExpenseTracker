@@ -52,9 +52,9 @@ In this view, users can see a graph showing monthly spending trends. Filters can
 
 Refer to [React.js](https://react.dev/) and [Chart.js](https://www.chartjs.org/) for library documentations.
 
-Setup [npm](https://www.npmjs.com/), run `npm run build` after changes are maded to the frontend code.
+Setup [npm](https://www.npmjs.com/), run `npm install` to install dependencies, run `npm run build` after changes are made to the frontend code.
 
-After any modification to the web app, the container need to be re-built:
+After any modification to the web app, the container needs to be re-built:
   1. First, stop and remove the previous expense-tracker project from Docker
   2. Run `docker-compose up --build -d`
 
@@ -63,7 +63,7 @@ By default, access to the MySQL database is exposed at port 81; this can be disa
       ports:
         - '81:3306'
   ```
-Remember to re-build the Docker project after this change.
+Remember to rebuild the Docker project after this change.
 
 ## License 
 
